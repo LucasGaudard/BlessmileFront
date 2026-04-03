@@ -19,12 +19,14 @@ function Evento() {
   };
 
   // 🚀 BUSCAR FOTOS
-  useEffect(() => {
+  const API_URL = "https://blessmile-het5.onrender.com";
+
+useEffect(() => {
   const buscarFotos = async () => {
     try {
       setLoading(true);
 
-      const res = await fetch(`http://localhost:5000/evento/${codigo}`);
+      const res = await fetch(`${API_URL}/evento/${codigo}`);
       const data = await res.json();
 
       if (Array.isArray(data)) {
@@ -44,11 +46,12 @@ function Evento() {
   buscarFotos();
 }, [codigo]);
 
-  // 📦 DOWNLOAD ZIP
-  const baixarTodas = () => {
-    window.open(`http://localhost:5000/download/${codigo}`, "_blank");
-  };
+// 📦 DOWNLOAD ZIP
+const baixarTodas = () => {
+  window.open(`${API_URL}/download/${codigo}`, "_blank");
+};
 
+  
   return (
     <div className="event-container">
 

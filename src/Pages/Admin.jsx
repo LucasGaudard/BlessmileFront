@@ -1,3 +1,5 @@
+const API_URL = "https://blessmile-het5.onrender.com";
+
 import { useState, useEffect } from "react";
 
 function Admin() {
@@ -67,32 +69,34 @@ function Admin() {
     try {
       const formData = new FormData();
 
-      // 🔥 PADRONIZA NOME (EVITA BUG)
       const eventoFormatado = evento.toLowerCase().trim();
-
       formData.append("evento", eventoFormatado);
 
       fotos.forEach((foto) => {
         formData.append("fotos", foto);
       });
 
-      const response = await fetch("http://localhost:5000/upload", {
+      const response = await fetch(`${API_URL}/upload`, {
         method: "POST",
         body: formData,
       });
 
+      const data = await response.json();
+
       if (!response.ok) {
-        throw new Error("Erro no upload");
+        throw new Error(data.error || "Erro no upload");
       }
 
-      alert("Fotos enviadas com sucesso!");
+      console.log("Fotos enviadas:", data.fotos);
+
+      alert("Fotos enviadas com sucesso! 🚀");
 
       setEvento("");
       setFotos([]);
       setPreview([]);
     } catch (err) {
       console.error(err);
-      alert("Erro ao enviar fotos");
+      alert("Erro ao enviar fotos ❌");
     } finally {
       setLoading(false);
     }
@@ -103,7 +107,6 @@ function Admin() {
     <div className="admin-container">
       <h1 className="admin-title">Painel Admin - Bless Smile</h1>
 
-      {/* INPUT EVENTO */}
       <input
         className="input"
         type="text"
@@ -112,7 +115,6 @@ function Admin() {
         onChange={(e) => setEvento(e.target.value)}
       />
 
-      {/* INPUT FILE */}
       <input
         className="input"
         type="file"
@@ -120,7 +122,6 @@ function Admin() {
         onChange={handleUpload}
       />
 
-      {/* PREVIEW */}
       {preview.length > 0 && (
         <div className="gallery" style={{ marginTop: "20px" }}>
           {preview.map((img, index) => (
@@ -139,7 +140,6 @@ function Admin() {
         </div>
       )}
 
-      {/* BOTÃO */}
       <button
         className={`button ${loading ? "loading" : ""}`}
         onClick={handleSubmit}
