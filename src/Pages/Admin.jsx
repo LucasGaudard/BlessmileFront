@@ -1,30 +1,31 @@
-const API_URL = "https://blessmile-het5.onrender.com";
-
 import { useState, useEffect } from "react";
+
+const API_URL = "https://blessmile-het5.onrender.com";
 
 function Admin() {
   const [autorizado, setAutorizado] = useState(false);
+  const [senha, setSenha] = useState("");
   const [evento, setEvento] = useState("");
   const [fotos, setFotos] = useState([]);
   const [preview, setPreview] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  /* 🔒 PROTEÇÃO */
+  /* 🔒 LOGIN */
   useEffect(() => {
-    const auth = localStorage.getItem("adminAuth");
+    const senhaSalva = localStorage.getItem("adminSenha");
 
-    if (auth === "true") {
+    if (senhaSalva) {
+      setSenha(senhaSalva);
       setAutorizado(true);
       return;
     }
 
-    const senha = prompt("Digite a senha do admin:");
+    const input = prompt("Digite a senha do admin:");
 
-    if (senha === "1234") {
-      localStorage.setItem("adminAuth", "true");
+    if (input) {
+      localStorage.setItem("adminSenha", input);
+      setSenha(input);
       setAutorizado(true);
-    } else {
-      setAutorizado(false);
     }
   }, []);
 
@@ -57,7 +58,7 @@ function Admin() {
     setPreview(novasPreview);
   };
 
-  /* 🚀 ENVIAR PARA O BACKEND */
+  /* 🚀 ENVIAR (AGORA COM SENHA) */
   const handleSubmit = async () => {
     if (!evento || fotos.length === 0) {
       alert("Preencha o nome do evento e selecione fotos");
@@ -78,6 +79,9 @@ function Admin() {
 
       const response = await fetch(`${API_URL}/upload`, {
         method: "POST",
+        headers: {
+          "x-admin-password": senha, // 🔥 AQUI É O MAIS IMPORTANTE
+        },
         body: formData,
       });
 
@@ -87,25 +91,38 @@ function Admin() {
         throw new Error(data.error || "Erro no upload");
       }
 
-      console.log("Fotos enviadas:", data.fotos);
-
       alert("Fotos enviadas com sucesso! 🚀");
 
       setEvento("");
       setFotos([]);
       setPreview([]);
+
     } catch (err) {
       console.error(err);
-      alert("Erro ao enviar fotos ❌");
+      alert("Erro ao enviar fotos ❌ (senha pode estar errada)");
     } finally {
       setLoading(false);
     }
+  };
+
+  /* 🚪 LOGOUT */
+  const logout = () => {
+    localStorage.removeItem("adminSenha");
+    window.location.reload();
   };
 
   /* 🎨 UI */
   return (
     <div className="admin-container">
       <h1 className="admin-title">Painel Admin - Bless Smile</h1>
+
+      <button
+        onClick={logout}
+        style={{ marginBottom: "20px", background: "#333" }}
+        className="button"
+      >
+        Sair
+      </button>
 
       <input
         className="input"

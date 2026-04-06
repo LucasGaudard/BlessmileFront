@@ -9,9 +9,12 @@ function Evento() {
 
   const [fotos, setFotos] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [erro, setErro] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(null);
 
-  // 🔤 FORMATA NOME DO EVENTO
+  const API_URL = "https://blessmile-het5.onrender.com";
+
+  // 🔤 FORMATA NOME
   const formatarNome = (codigo) => {
     return codigo
       .replace(/-/g, " ")
@@ -19,56 +22,46 @@ function Evento() {
   };
 
   // 🚀 BUSCAR FOTOS
-  const API_URL = "https://blessmile-het5.onrender.com";
+  useEffect(() => {
+    const buscarFotos = async () => {
+      try {
+        setLoading(true);
+        setErro(false);
 
-useEffect(() => {
-  const buscarFotos = async () => {
-    try {
-      setLoading(true);
+        const res = await fetch(`${API_URL}/evento/${codigo}`);
 
-      const res = await fetch(`${API_URL}/evento/${codigo}`);
-      const data = await res.json();
+        if (!res.ok) throw new Error("Erro na requisição");
 
-      if (Array.isArray(data)) {
-        setFotos(data);
-      } else {
-        console.error("Resposta inválida:", data);
+        const data = await res.json();
+
+        if (Array.isArray(data)) {
+          setFotos(data);
+        } else {
+          setFotos([]);
+        }
+
+      } catch (err) {
+        console.error("Erro ao buscar fotos:", err);
+        setErro(true);
         setFotos([]);
+      } finally {
+        setLoading(false);
       }
-    } catch (err) {
-      console.error("Erro:", err);
-      setFotos([]);
-    } finally {
-      setLoading(false);
-    }
+    };
+
+    buscarFotos();
+  }, [codigo]);
+
+  // 📦 DOWNLOAD
+  const baixarTodas = () => {
+    window.open(`${API_URL}/download/${codigo}`, "_blank");
   };
 
-  buscarFotos();
-}, [codigo]);
-
-// 📦 DOWNLOAD ZIP
-const baixarTodas = () => {
-  window.open(`${API_URL}/download/${codigo}`, "_blank");
-};
-
-  
   return (
     <div className="event-container">
 
-      {/* 🔥 MARCA */}
-      <p
-        style={{
-          textAlign: "center",
-          opacity: 0.6,
-          marginBottom: "5px",
-          letterSpacing: "3px",
-          fontSize: "12px",
-        }}
-      >
-        BLESS SMILE PHOTOGRAPHY
-      </p>
+      <p className="brand">BLESS SMILE PHOTOGRAPHY</p>
 
-      {/* 🎯 TÍTULO BONITO */}
       <h2 className="event-title">
         {formatarNome(codigo)}
       </h2>
@@ -82,12 +75,21 @@ const baixarTodas = () => {
         </div>
       )}
 
-      {/* ⏳ LOADING */}
-      {loading ? (
-        <p className="loading">Carregando fotos...</p>
-      ) : fotos.length === 0 ? (
+      {/* LOADING */}
+      {loading && <p className="loading">Carregando fotos...</p>}
+
+      {/* ERRO */}
+      {erro && (
+        <p className="loading">Erro ao carregar o evento 😢</p>
+      )}
+
+      {/* SEM FOTOS */}
+      {!loading && !erro && fotos.length === 0 && (
         <p className="loading">Nenhuma foto encontrada</p>
-      ) : (
+      )}
+
+      {/* GALERIA */}
+      {!loading && !erro && fotos.length > 0 && (
         <div className="gallery">
           {fotos.map((foto, index) => (
             <div key={index} onClick={() => setLightboxIndex(index)}>
@@ -97,7 +99,7 @@ const baixarTodas = () => {
         </div>
       )}
 
-      {/* 🔍 LIGHTBOX */}
+      {/* LIGHTBOX */}
       {lightboxIndex !== null && (
         <Lightbox
           fotos={fotos}
