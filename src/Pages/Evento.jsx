@@ -1,115 +1,155 @@
 import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
-import PhotoCard from "../Components/PhotoCard";
-import Lightbox from "../Components/Lightbox";
-import "./Evento.css";
 
-function Evento() {
-  const { codigo } = useParams();
+const API_URL = "https://blessmile-het5.onrender.com";
 
+function Admin() {
+  const [autorizado, setAutorizado] = useState(false);
+  const [senha, setSenha] = useState("");
+  const [evento, setEvento] = useState("");
   const [fotos, setFotos] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [erro, setErro] = useState(false);
-  const [lightboxIndex, setLightboxIndex] = useState(null);
+  const [preview, setPreview] = useState([]);
+  const [loading, setLoading] = useState(false);
 
-  const API_URL = "https://blessmile-het5.onrender.com";
-
-  // 🔤 FORMATA NOME
-  const formatarNome = (codigo) => {
-    return codigo
-      .replace(/-/g, " ")
-      .replace(/\b\w/g, (l) => l.toUpperCase());
-  };
-
-  // 🚀 BUSCAR FOTOS
+  // 🔐 LOGIN REAL
   useEffect(() => {
-    const buscarFotos = async () => {
-      try {
-        setLoading(true);
-        setErro(false);
+    const login = async () => {
+      const senhaSalva = localStorage.getItem("adminSenha");
 
-        const res = await fetch(`${API_URL}/evento/${codigo}`);
-
-        if (!res.ok) throw new Error("Erro na requisição");
-
-        const data = await res.json();
-
-        if (Array.isArray(data)) {
-          setFotos(data);
+      if (senhaSalva) {
+        const ok = await validarSenha(senhaSalva);
+        if (ok) {
+          setSenha(senhaSalva);
+          setAutorizado(true);
+          return;
         } else {
-          setFotos([]);
+          localStorage.removeItem("adminSenha");
         }
+      }
 
-      } catch (err) {
-        console.error("Erro ao buscar fotos:", err);
-        setErro(true);
-        setFotos([]);
-      } finally {
-        setLoading(false);
+      const input = prompt("Digite a senha do admin:");
+
+      if (!input) return;
+
+      const ok = await validarSenha(input);
+
+      if (ok) {
+        localStorage.setItem("adminSenha", input);
+        setSenha(input);
+        setAutorizado(true);
+      } else {
+        alert("Senha incorreta ❌");
+        window.location.reload();
       }
     };
 
-    buscarFotos();
-  }, [codigo]);
+    login();
+  }, []);
 
-  // 📦 DOWNLOAD
-  const baixarTodas = () => {
-    window.open(`${API_URL}/download/${codigo}`, "_blank");
+  // 🔥 VALIDA NO BACKEND
+  const validarSenha = async (senha) => {
+    try {
+      const res = await fetch(`${API_URL}/validar-admin`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-admin-password": senha,
+        },
+      });
+
+      return res.ok;
+    } catch {
+      return false;
+    }
+  };
+
+  if (!autorizado) {
+    return <h1 style={{ textAlign: "center" }}>Acesso negado</h1>;
+  }
+
+  // 📸 UPLOAD
+  const handleUpload = (e) => {
+    const arquivos = Array.from(e.target.files);
+    setFotos(arquivos);
+    setPreview(arquivos.map((f) => URL.createObjectURL(f)));
+  };
+
+  const removeFoto = (index) => {
+    setFotos(fotos.filter((_, i) => i !== index));
+    setPreview(preview.filter((_, i) => i !== index));
+  };
+
+  const handleSubmit = async () => {
+    if (!evento || fotos.length === 0) {
+      alert("Preencha tudo");
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const formData = new FormData();
+      formData.append("evento", evento.toLowerCase().trim());
+
+      fotos.forEach((f) => formData.append("fotos", f));
+
+      const res = await fetch(`${API_URL}/upload`, {
+        method: "POST",
+        headers: {
+          "x-admin-password": senha,
+        },
+        body: formData,
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) throw new Error(data.error);
+
+      alert("Upload feito 🚀");
+
+      setEvento("");
+      setFotos([]);
+      setPreview([]);
+
+    } catch (err) {
+      console.error(err);
+      alert("Erro ❌ " + err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const logout = () => {
+    localStorage.removeItem("adminSenha");
+    window.location.reload();
   };
 
   return (
-    <div className="event-container">
+    <div className="admin-container">
+      <h1>Painel Admin</h1>
 
-      <p className="brand">BLESS SMILE PHOTOGRAPHY</p>
+      <button onClick={logout}>Sair</button>
 
-      <h2 className="event-title">
-        {formatarNome(codigo)}
-      </h2>
+      <input
+        type="text"
+        placeholder="Evento"
+        value={evento}
+        onChange={(e) => setEvento(e.target.value)}
+      />
 
-      {/* BOTÃO DOWNLOAD */}
-      {fotos.length > 0 && !loading && (
-        <div style={{ textAlign: "center", marginBottom: "20px" }}>
-          <button className="button" onClick={baixarTodas}>
-            ⬇️ Baixar Todas
-          </button>
+      <input type="file" multiple onChange={handleUpload} />
+
+      {preview.map((img, i) => (
+        <div key={i}>
+          <img src={img} width={100} />
+          <button onClick={() => removeFoto(i)}>X</button>
         </div>
-      )}
+      ))}
 
-      {/* LOADING */}
-      {loading && <p className="loading">Carregando fotos...</p>}
-
-      {/* ERRO */}
-      {erro && (
-        <p className="loading">Erro ao carregar o evento 😢</p>
-      )}
-
-      {/* SEM FOTOS */}
-      {!loading && !erro && fotos.length === 0 && (
-        <p className="loading">Nenhuma foto encontrada</p>
-      )}
-
-      {/* GALERIA */}
-      {!loading && !erro && fotos.length > 0 && (
-        <div className="gallery">
-          {fotos.map((foto, index) => (
-            <div key={index} onClick={() => setLightboxIndex(index)}>
-              <PhotoCard url={foto} index={index} />
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* LIGHTBOX */}
-      {lightboxIndex !== null && (
-        <Lightbox
-          fotos={fotos}
-          index={lightboxIndex}
-          setIndex={setLightboxIndex}
-          fechar={() => setLightboxIndex(null)}
-        />
-      )}
+      <button onClick={handleSubmit} disabled={loading}>
+        {loading ? "Enviando..." : "Salvar"}
+      </button>
     </div>
   );
 }
 
-export default Evento;
+export default Admin;
