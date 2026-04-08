@@ -71,7 +71,7 @@ function Evento() {
       <div className="gallery">
         {fotosFormatadas.map((url, index) => (
           <div key={index} onClick={() => setLightboxIndex(index)}>
-            <img src={url} style={{ width: "100%" }} />
+            <img src={url} style={{ width: "300%" }} />
           </div>
         ))}
       </div>
