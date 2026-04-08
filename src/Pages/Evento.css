@@ -1,56 +1,104 @@
-.eventos-container {
-  height: 100vh;
+.event-container {
+  min-height: 100vh;
+  padding: 40px 20px;
+  background: linear-gradient(180deg, #0a0a0a, #111);
+  color: white;
+}
+
+/* TÍTULO */
+.event-title {
+  text-align: center;
+  font-size: 2.5rem;
+  margin-bottom: 30px;
+  font-weight: 300;
+  letter-spacing: 2px;
+}
+
+/* BOTÃO TOPO */
+.top-actions {
   display: flex;
   justify-content: center;
-  align-items: center;
-  background: linear-gradient(135deg, #0f172a, #1e293b);
-  font-family: Arial, sans-serif;
+  margin-bottom: 30px;
 }
 
-.eventos-card {
-  background: #ffffff;
-  padding: 30px;
-  border-radius: 12px;
-  width: 350px;
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-}
-
-.eventos-card h2 {
-  text-align: center;
-  color: #0f172a;
-}
-
-.eventos-card input[type="text"],
-.eventos-card input[type="file"] {
-  padding: 10px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-}
-
-.eventos-card button {
-  padding: 12px;
+.button {
+  background: white;
+  color: black;
   border: none;
-  border-radius: 6px;
-  background: #0f172a;
-  color: #fff;
-  font-weight: bold;
+  padding: 12px 24px;
+  border-radius: 30px;
   cursor: pointer;
+  font-weight: bold;
   transition: 0.3s;
 }
 
-.eventos-card button:hover {
-  background: #1e293b;
+.button:hover {
+  transform: scale(1.05);
+  background: #f2f2f2;
 }
 
-.eventos-card button:disabled {
-  background: #94a3b8;
-  cursor: not-allowed;
+/* GALERIA */
+.gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 20px;
 }
 
-.mensagem {
+/* CARD */
+.photo-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 14px;
+  cursor: pointer;
+}
+
+/* IMAGEM */
+.photo {
+  width: 100%;
+  height: 280px;
+  object-fit: cover;
+  transition: 0.5s ease;
+}
+
+/* HOVER */
+.photo-card:hover .photo {
+  transform: scale(1.08);
+  filter: brightness(0.7);
+}
+
+/* OVERLAY BOTÕES */
+.overlay {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  display: flex;
+  gap: 10px;
+  opacity: 0;
+  transition: 0.3s;
+}
+
+.photo-card:hover .overlay {
+  opacity: 1;
+}
+
+/* BOTÕES DENTRO DO CARD */
+.overlay button {
+  background: rgba(255, 255, 255, 0.9);
+  border: none;
+  padding: 8px 10px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 14px;
+  transition: 0.2s;
+}
+
+.overlay button:hover {
+  transform: scale(1.2);
+}
+
+/* LOADING */
+.loading {
   text-align: center;
-  font-weight: bold;
+  margin-top: 50px;
+  opacity: 0.7;
 }

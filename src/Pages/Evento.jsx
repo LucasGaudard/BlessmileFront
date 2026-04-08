@@ -1,93 +1,84 @@
-import { useState } from "react";
-import "./Eventos.css";
+import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import "./Evento.css";
 
 const API_URL = "https://blessmile-het5.onrender.com";
 
-function Eventos() {
-  const [evento, setEvento] = useState("");
+function Evento() {
+  const { codigo } = useParams();
   const [fotos, setFotos] = useState([]);
-  const [mensagem, setMensagem] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
-  const handleFotosChange = (e) => {
-    setFotos(e.target.files);
-  };
-
-  const handleUpload = async () => {
-    if (!evento) {
-      setMensagem("Digite o nome do evento");
-      return;
-    }
-
-    if (fotos.length === 0) {
-      setMensagem("Selecione pelo menos uma foto");
-      return;
-    }
-
-    try {
-      setLoading(true);
-      setMensagem("");
-
-      const formData = new FormData();
-      formData.append("evento", evento);
-
-      for (let i = 0; i < fotos.length; i++) {
-        formData.append("fotos", fotos[i]);
-      }
-
-      const senha = localStorage.getItem("adminSenha");
-
-      const response = await fetch(`${API_URL}/upload`, {
-        method: "POST",
-        headers: {
-          "x-admin-password": senha,
-        },
-        body: formData,
+  useEffect(() => {
+    fetch(`${API_URL}/evento/${codigo}`)
+      .then(res => res.json())
+      .then(data => {
+        setFotos(data);
+        setLoading(false);
       });
+  }, [codigo]);
 
-      const data = await response.json();
+  // 📥 baixar uma foto
+  const baixarFoto = (url) => {
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "foto.jpg";
+    link.click();
+  };
 
-      if (!response.ok) {
-        throw new Error(data.error || "Erro no upload");
-      }
-
-      setMensagem("✅ Upload realizado com sucesso!");
-      setEvento("");
-      setFotos([]);
-    } catch (err) {
-      console.error(err);
-      setMensagem("❌ Erro ao enviar fotos");
-    } finally {
-      setLoading(false);
+  // 📥 baixar todas
+  const baixarTodas = async () => {
+    for (let i = 0; i < fotos.length; i++) {
+      setTimeout(() => {
+        baixarFoto(fotos[i]);
+      }, i * 500);
     }
   };
+
+  // 🗑️ deletar foto
+  const deletarFoto = async (url) => {
+    const senha = localStorage.getItem("adminSenha");
+
+    if (!window.confirm("Deseja deletar essa foto?")) return;
+
+    await fetch(`${API_URL}/foto`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        "x-admin-password": senha,
+      },
+      body: JSON.stringify({ url }),
+    });
+
+    setFotos(fotos.filter(f => f !== url));
+  };
+
+  if (loading) return <p className="loading">Carregando...</p>;
 
   return (
-    <div className="eventos-container">
-      <div className="eventos-card">
-        <h2>Enviar Fotos</h2>
+    <div className="event-container">
+      <h1 className="event-title">Evento: {codigo}</h1>
 
-        <input
-          type="text"
-          placeholder="Nome do evento"
-          value={evento}
-          onChange={(e) => setEvento(e.target.value)}
-        />
-
-        <input
-          type="file"
-          multiple
-          onChange={handleFotosChange}
-        />
-
-        <button onClick={handleUpload} disabled={loading}>
-          {loading ? "Enviando..." : "Enviar Fotos"}
+      <div className="top-actions">
+        <button className="button" onClick={baixarTodas}>
+          Baixar todas
         </button>
+      </div>
 
-        {mensagem && <p className="mensagem">{mensagem}</p>}
+      <div className="gallery">
+        {fotos.map((foto, index) => (
+          <div className="photo-card" key={index}>
+            <img src={foto} alt="" className="photo" />
+
+            <div className="overlay">
+              <button onClick={() => baixarFoto(foto)}>⬇</button>
+              <button onClick={() => deletarFoto(foto)}>🗑</button>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );
 }
 
-export default Eventos;
+export default Evento;
