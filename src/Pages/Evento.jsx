@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import PhotoCard from "../Components/Photocard.jsx";
+import PhotoCard from "../Components/Photocard";
 import Lightbox from "../Components/Lightbox";
 import "./Evento.css";
 
@@ -71,7 +71,7 @@ function Evento() {
       <div className="gallery">
         {fotosFormatadas.map((url, index) => (
           <div key={index} onClick={() => setLightboxIndex(index)}>
-            <PhotoCard url={url} index={index} />
+            <img src={url} style={{ width: "100%" }} />
           </div>
         ))}
       </div>
