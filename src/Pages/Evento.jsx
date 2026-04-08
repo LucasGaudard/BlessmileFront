@@ -84,7 +84,11 @@ function Evento() {
       <div className="gallery">
         {fotos.map((foto, index) => (
           <div className="photo-card" key={index}>
-            <img src={foto} alt="" className="photo" />
+            <img
+              src={foto.url ? `https://blessmile-het5.onrender.com${foto.url}` : foto}
+              alt=""
+              className="photo"
+            />
 
             <div className="overlay">
               <button onClick={() => baixarFoto(foto)}>⬇</button>
