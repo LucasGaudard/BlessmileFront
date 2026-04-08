@@ -1,72 +1,55 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import PhotoCard from "../Components/Photocard.jsx";
+import Lightbox from "../Components/Lightbox";
 import "./Evento.css";
 
 const API_URL = "https://blessmile-het5.onrender.com";
 
 function Evento() {
   const { codigo } = useParams();
+
   const [fotos, setFotos] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [lightboxIndex, setLightboxIndex] = useState(null);
 
   useEffect(() => {
-  fetch(`${API_URL}/evento/${codigo}`)
-    .then(res => res.json())
-    .then(data => {
-      console.log("RESPOSTA BACKEND:", data);
+    fetch(`${API_URL}/evento/${codigo}`)
+      .then((res) => res.json())
+      .then((data) => {
+        console.log("BACK:", data);
 
-      // 🔥 TRATAMENTO CORRETO
-      if (Array.isArray(data)) {
-        setFotos(data);
-      } else if (data.fotos && Array.isArray(data.fotos)) {
-        setFotos(data.fotos);
-      } else {
-        console.error("Formato inesperado:", data);
+        if (Array.isArray(data)) {
+          setFotos(data);
+        } else if (data.fotos) {
+          setFotos(data.fotos);
+        } else {
+          setFotos([]);
+        }
+
+        setLoading(false);
+      })
+      .catch(() => {
         setFotos([]);
-      }
+        setLoading(false);
+      });
+  }, [codigo]);
 
-      setLoading(false);
-    })
-    .catch(err => {
-      console.error("Erro ao buscar fotos:", err);
-      setFotos([]);
-      setLoading(false);
-    });
-}, [codigo]);
+  // 🔥 FORMATA URLs
+  const fotosFormatadas = fotos.map((foto) =>
+    foto.url ? `${API_URL}${foto.url}` : foto
+  );
 
-  // 📥 baixar uma foto
-  const baixarFoto = (url) => {
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = "foto.jpg";
-    link.click();
-  };
-
-  // 📥 baixar todas
-  const baixarTodas = async () => {
-    for (let i = 0; i < fotos.length; i++) {
+  // 📥 BAIXAR TODAS
+  const baixarTodas = () => {
+    fotosFormatadas.forEach((url, i) => {
       setTimeout(() => {
-        baixarFoto(fotos[i]);
-      }, i * 500);
-    }
-  };
-
-  // 🗑️ deletar foto
-  const deletarFoto = async (url) => {
-    const senha = localStorage.getItem("adminSenha");
-
-    if (!window.confirm("Deseja deletar essa foto?")) return;
-
-    await fetch(`${API_URL}/foto`, {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-        "x-admin-password": senha,
-      },
-      body: JSON.stringify({ url }),
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `foto-${i}.jpg`;
+        link.click();
+      }, i * 400);
     });
-
-    setFotos(fotos.filter(f => f !== url));
   };
 
   if (loading) return <p className="loading">Carregando...</p>;
@@ -82,21 +65,22 @@ function Evento() {
       </div>
 
       <div className="gallery">
-        {fotos.map((foto, index) => (
-          <div className="photo-card" key={index}>
-            <img
-              src={foto.url ? `https://blessmile-het5.onrender.com${foto.url}` : foto}
-              alt=""
-              className="photo"
-            />
-
-            <div className="overlay">
-              <button onClick={() => baixarFoto(foto)}>⬇</button>
-              <button onClick={() => deletarFoto(foto)}>🗑</button>
-            </div>
+        {fotosFormatadas.map((url, index) => (
+          <div key={index} onClick={() => setLightboxIndex(index)}>
+            <PhotoCard url={url} index={index} />
           </div>
         ))}
       </div>
+
+      {/* LIGHTBOX */}
+      {lightboxIndex !== null && (
+        <Lightbox
+          fotos={fotosFormatadas}
+          index={lightboxIndex}
+          setIndex={setLightboxIndex}
+          fechar={() => setLightboxIndex(null)}
+        />
+      )}
     </div>
   );
 }
