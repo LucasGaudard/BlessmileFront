@@ -17,7 +17,7 @@ function Evento() {
     fetch(`${API_URL}/evento/${codigo}`)
       .then((res) => res.json())
       .then((data) => {
-        console.log("BACK:", data);
+         console.log("FOTOS DO BACK:", data); // 👈 COLOCA AQUI
 
         if (Array.isArray(data)) {
           setFotos(data);
