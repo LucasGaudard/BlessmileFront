@@ -10,13 +10,29 @@ function Evento() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch(`${API_URL}/evento/${codigo}`)
-      .then(res => res.json())
-      .then(data => {
+  fetch(`${API_URL}/evento/${codigo}`)
+    .then(res => res.json())
+    .then(data => {
+      console.log("RESPOSTA BACKEND:", data);
+
+      // 🔥 TRATAMENTO CORRETO
+      if (Array.isArray(data)) {
         setFotos(data);
-        setLoading(false);
-      });
-  }, [codigo]);
+      } else if (data.fotos && Array.isArray(data.fotos)) {
+        setFotos(data.fotos);
+      } else {
+        console.error("Formato inesperado:", data);
+        setFotos([]);
+      }
+
+      setLoading(false);
+    })
+    .catch(err => {
+      console.error("Erro ao buscar fotos:", err);
+      setFotos([]);
+      setLoading(false);
+    });
+}, [codigo]);
 
   // 📥 baixar uma foto
   const baixarFoto = (url) => {
