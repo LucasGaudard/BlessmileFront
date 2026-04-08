@@ -1,108 +1,56 @@
-.event-container {
-  min-height: 100vh;
-  padding: 40px 20px;
-  background: linear-gradient(180deg, #0a0a0a, #111);
-  color: white;
-}
-
-/* TÍTULO */
-.event-title {
-  text-align: center;
-  font-size: 2.5rem;
-  margin-bottom: 30px;
-  font-weight: 300;
-  letter-spacing: 2px;
-}
-
-/* BOTÃO PADRÃO */
-.button {
-  background: white;
-  color: black;
-  border: none;
-  padding: 12px 24px;
-  border-radius: 30px;
-  cursor: pointer;
-  font-weight: bold;
-  transition: 0.3s;
-}
-
-.button:hover {
-  transform: scale(1.05);
-  background: #f2f2f2;
-}
-
-/* GALERIA */
-.gallery {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 15px;
-}
-
-/* FOTO CARD */
-.photo-card {
-  position: relative; /* 🔥 necessário pro botão */
-  overflow: hidden;
-  border-radius: 12px;
-  cursor: pointer;
-}
-
-/* IMAGEM */
-.photo {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: 0.5s ease;
-  filter: brightness(0.95);
-}
-
-/* HOVER PREMIUM */
-.photo-card:hover .photo {
-  transform: scale(1.08);
-  filter: brightness(1.05);
-}
-
-/* 🔽 BOTÃO DOWNLOAD */
-.download-btn {
-  position: absolute;
-  bottom: 10px;
-  right: 10px;
-
-  background: rgba(0, 0, 0, 0.6);
-  border: none;
-  color: white;
-
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-
+.eventos-container {
+  height: 100vh;
   display: flex;
-  align-items: center;
   justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #0f172a, #1e293b);
+  font-family: Arial, sans-serif;
+}
 
+.eventos-card {
+  background: #ffffff;
+  padding: 30px;
+  border-radius: 12px;
+  width: 350px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.eventos-card h2 {
+  text-align: center;
+  color: #0f172a;
+}
+
+.eventos-card input[type="text"],
+.eventos-card input[type="file"] {
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+.eventos-card button {
+  padding: 12px;
+  border: none;
+  border-radius: 6px;
+  background: #0f172a;
+  color: #fff;
+  font-weight: bold;
   cursor: pointer;
-  font-size: 16px;
-
-  opacity: 0;
-  transform: translateY(10px);
   transition: 0.3s;
 }
 
-/* aparecer no hover */
-.photo-card:hover .download-btn {
-  opacity: 1;
-  transform: translateY(0);
+.eventos-card button:hover {
+  background: #1e293b;
 }
 
-/* hover do botão */
-.download-btn:hover {
-  background: rgba(255, 255, 255, 0.9);
-  color: black;
+.eventos-card button:disabled {
+  background: #94a3b8;
+  cursor: not-allowed;
 }
 
-/* LOADING */
-.loading {
+.mensagem {
   text-align: center;
-  margin-top: 50px;
-  opacity: 0.7;
-  font-size: 1.2rem;
+  font-weight: bold;
 }

@@ -1,57 +1,93 @@
-import { useParams } from "react-router-dom";
-import { useEffect, useState } from "react";
-import "./Evento.css";
+import { useState } from "react";
+import "./Eventos.css";
 
 const API_URL = "https://blessmile-het5.onrender.com";
 
-function Evento() {
-  const { codigo } = useParams();
+function Eventos() {
+  const [evento, setEvento] = useState("");
   const [fotos, setFotos] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [mensagem, setMensagem] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    const buscarFotos = async () => {
-      try {
-        const res = await fetch(`${API_URL}/evento/${codigo}`);
-        const data = await res.json();
+  const handleFotosChange = (e) => {
+    setFotos(e.target.files);
+  };
 
-        setFotos(data.fotos || []);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
+  const handleUpload = async () => {
+    if (!evento) {
+      setMensagem("Digite o nome do evento");
+      return;
+    }
+
+    if (fotos.length === 0) {
+      setMensagem("Selecione pelo menos uma foto");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setMensagem("");
+
+      const formData = new FormData();
+      formData.append("evento", evento);
+
+      for (let i = 0; i < fotos.length; i++) {
+        formData.append("fotos", fotos[i]);
       }
-    };
 
-    buscarFotos();
-  }, [codigo]);
+      const senha = localStorage.getItem("adminSenha");
 
-  if (loading) {
-    return <div className="loading">Carregando...</div>;
-  }
+      const response = await fetch(`${API_URL}/upload`, {
+        method: "POST",
+        headers: {
+          "x-admin-password": senha,
+        },
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Erro no upload");
+      }
+
+      setMensagem("✅ Upload realizado com sucesso!");
+      setEvento("");
+      setFotos([]);
+    } catch (err) {
+      console.error(err);
+      setMensagem("❌ Erro ao enviar fotos");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <div className="event-container">
-      <h1 className="event-title">Evento: {codigo}</h1>
+    <div className="eventos-container">
+      <div className="eventos-card">
+        <h2>Enviar Fotos</h2>
 
-      {fotos.length === 0 ? (
-        <p className="loading">Nenhuma foto encontrada 😢</p>
-      ) : (
-        <div className="gallery">
-          {fotos.map((foto, index) => (
-            <div className="photo-card" key={index}>
-              <img src={foto} alt="" className="photo" />
+        <input
+          type="text"
+          placeholder="Nome do evento"
+          value={evento}
+          onChange={(e) => setEvento(e.target.value)}
+        />
 
-              {/* 🔽 BOTÃO DE DOWNLOAD */}
-              <a href={foto} download target="_blank" rel="noopener noreferrer">
-                <button className="download-btn">⬇</button>
-              </a>
-            </div>
-          ))}
-        </div>
-      )}
+        <input
+          type="file"
+          multiple
+          onChange={handleFotosChange}
+        />
+
+        <button onClick={handleUpload} disabled={loading}>
+          {loading ? "Enviando..." : "Enviar Fotos"}
+        </button>
+
+        {mensagem && <p className="mensagem">{mensagem}</p>}
+      </div>
     </div>
   );
 }
 
-export default Evento;
+export default Eventos;
