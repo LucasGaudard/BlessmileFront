@@ -1,5 +1,6 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
+import "./Evento.css";
 
 const API_URL = "https://blessmile-het5.onrender.com";
 
@@ -25,23 +26,27 @@ function Evento() {
     buscarFotos();
   }, [codigo]);
 
-  if (loading) return <p>Carregando...</p>;
+  if (loading) {
+    return <div className="loading">Carregando...</div>;
+  }
 
   return (
-    <div style={{ padding: "20px" }}>
-      <h1>Evento: {codigo}</h1>
+    <div className="event-container">
+      <h1 className="event-title">Evento: {codigo}</h1>
 
       {fotos.length === 0 ? (
-        <p>Nenhuma foto encontrada 😢</p>
+        <p className="loading">Nenhuma foto encontrada 😢</p>
       ) : (
-        <div style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
-          {fotos.map((foto, i) => (
-            <img
-              key={i}
-              src={foto}
-              alt=""
-              style={{ width: "200px", borderRadius: "10px" }}
-            />
+        <div className="gallery">
+          {fotos.map((foto, index) => (
+            <div className="photo-card" key={index}>
+              <img src={foto} alt="" className="photo" />
+
+              {/* 🔽 BOTÃO DE DOWNLOAD */}
+              <a href={foto} download target="_blank" rel="noopener noreferrer">
+                <button className="download-btn">⬇</button>
+              </a>
+            </div>
           ))}
         </div>
       )}

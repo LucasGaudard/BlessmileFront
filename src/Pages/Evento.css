@@ -14,7 +14,7 @@
   letter-spacing: 2px;
 }
 
-/* BOTÃO DOWNLOAD */
+/* BOTÃO PADRÃO */
 .button {
   background: white;
   color: black;
@@ -38,13 +38,15 @@
   gap: 15px;
 }
 
-/* FOTO */
+/* FOTO CARD */
 .photo-card {
+  position: relative; /* 🔥 necessário pro botão */
   overflow: hidden;
   border-radius: 12px;
   cursor: pointer;
 }
 
+/* IMAGEM */
 .photo {
   width: 100%;
   height: 100%;
@@ -59,9 +61,48 @@
   filter: brightness(1.05);
 }
 
+/* 🔽 BOTÃO DOWNLOAD */
+.download-btn {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+
+  background: rgba(0, 0, 0, 0.6);
+  border: none;
+  color: white;
+
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  cursor: pointer;
+  font-size: 16px;
+
+  opacity: 0;
+  transform: translateY(10px);
+  transition: 0.3s;
+}
+
+/* aparecer no hover */
+.photo-card:hover .download-btn {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* hover do botão */
+.download-btn:hover {
+  background: rgba(255, 255, 255, 0.9);
+  color: black;
+}
+
 /* LOADING */
 .loading {
   text-align: center;
   margin-top: 50px;
   opacity: 0.7;
+  font-size: 1.2rem;
 }
