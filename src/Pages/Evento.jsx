@@ -35,10 +35,9 @@ function Evento() {
       });
   }, [codigo]);
 
-  // 🔥 COMO VEM DO CLOUDINARY, USA DIRETO
   const fotosFormatadas = fotos;
 
-  // 📥 BAIXAR TODAS (funcionando de verdade)
+  // 📥 BAIXAR TODAS (continua funcionando)
   const baixarTodas = async () => {
     for (let i = 0; i < fotosFormatadas.length; i++) {
       const response = await fetch(fotosFormatadas[i]);
@@ -71,7 +70,7 @@ function Evento() {
       <div className="gallery">
         {fotosFormatadas.map((url, index) => (
           <div key={index} onClick={() => setLightboxIndex(index)}>
-            <img src={url} style={{ width: "300%" }} />
+            <PhotoCard url={url} index={index} />
           </div>
         ))}
       </div>
