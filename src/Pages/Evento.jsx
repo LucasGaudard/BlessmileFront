@@ -17,11 +17,9 @@ function Evento() {
     fetch(`${API_URL}/evento/${codigo}`)
       .then((res) => res.json())
       .then((data) => {
-        console.log("FOTOS DO BACK:", data);
+        console.log("RESPOSTA BACKEND:", data);
 
-        if (Array.isArray(data)) {
-          setFotos(data);
-        } else if (data.fotos) {
+        if (data?.fotos && Array.isArray(data.fotos)) {
           setFotos(data.fotos);
         } else {
           setFotos([]);
@@ -29,18 +27,16 @@ function Evento() {
 
         setLoading(false);
       })
-      .catch(() => {
+      .catch((err) => {
+        console.error("Erro ao buscar fotos:", err);
         setFotos([]);
         setLoading(false);
       });
   }, [codigo]);
 
-  const fotosFormatadas = fotos;
-
-  // 📥 BAIXAR TODAS (continua funcionando)
   const baixarTodas = async () => {
-    for (let i = 0; i < fotosFormatadas.length; i++) {
-      const response = await fetch(fotosFormatadas[i]);
+    for (let i = 0; i < fotos.length; i++) {
+      const response = await fetch(fotos[i]);
       const blob = await response.blob();
 
       const url = window.URL.createObjectURL(blob);
@@ -68,17 +64,23 @@ function Evento() {
       </div>
 
       <div className="gallery">
-        {fotosFormatadas.map((url, index) => (
-          <div key={index} onClick={() => setLightboxIndex(index)}>
-            <PhotoCard url={url} index={index} />
-          </div>
-        ))}
+        {fotos.length > 0 ? (
+          fotos.map((url, index) => (
+            <div key={index} onClick={() => setLightboxIndex(index)}>
+              <PhotoCard url={url} index={index} />
+            </div>
+          ))
+        ) : (
+          <p style={{ textAlign: "center", width: "100%" }}>
+            Nenhuma foto encontrada
+          </p>
+        )}
       </div>
 
       {/* LIGHTBOX */}
       {lightboxIndex !== null && (
         <Lightbox
-          fotos={fotosFormatadas}
+          fotos={fotos}
           index={lightboxIndex}
           setIndex={setLightboxIndex}
           fechar={() => setLightboxIndex(null)}
