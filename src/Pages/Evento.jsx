@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import PhotoCard from "../Components/Photocard";
 import Lightbox from "../Components/Lightbox";
 import "./Evento.css";
 
@@ -26,29 +27,15 @@ function Evento() {
 
         setLoading(false);
       })
-      .catch((err) => {
-        console.error("Erro ao buscar fotos:", err);
+      .catch(() => {
         setFotos([]);
         setLoading(false);
       });
   }, [codigo]);
 
-  const baixarTodas = async () => {
-    for (let i = 0; i < fotos.length; i++) {
-      const response = await fetch(fotos[i]);
-      const blob = await response.blob();
-
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement("a");
-
-      link.href = url;
-      link.download = `foto-${i}.jpg`;
-
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-    }
-  };
+  const baixarTodas = () => {
+  window.open(`${API_URL}/download/${codigo}`);
+};
 
   if (loading) return <p className="loading">Carregando...</p>;
 
@@ -63,40 +50,13 @@ function Evento() {
       </div>
 
       <div className="gallery">
-        {fotos.length > 0 ? (
-          fotos.map((url, index) => (
-            <div
-              key={index}
-              onClick={() => setLightboxIndex(index)}
-              style={{
-                width: "100%",
-                height: "250px",
-                overflow: "hidden",
-                borderRadius: "12px",
-                background: "#222",
-                cursor: "pointer",
-              }}
-            >
-              <img
-                src={url}
-                alt={`Foto ${index}`}
-                style={{
-                  width: "100%",
-                  height: "100%",
-                  objectFit: "cover",
-                  display: "block",
-                }}
-              />
-            </div>
-          ))
-        ) : (
-          <p style={{ textAlign: "center", width: "100%" }}>
-            Nenhuma foto encontrada
-          </p>
-        )}
+        {fotos.map((url, index) => (
+          <div key={index} onClick={() => setLightboxIndex(index)}>
+            <PhotoCard url={url} index={index} />
+          </div>
+        ))}
       </div>
 
-      {/* LIGHTBOX */}
       {lightboxIndex !== null && (
         <Lightbox
           fotos={fotos}
