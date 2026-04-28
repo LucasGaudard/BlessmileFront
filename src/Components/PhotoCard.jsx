@@ -18,28 +18,37 @@ function PhotoCard({ url, index }) {
         height: "250px",
         overflow: "hidden",
         position: "relative",
+        background: "#eee",
       }}
     >
-      {!loaded && <div className="skeleton"></div>}
-
+      {/* imagem */}
       <img
-        className={`photo ${loaded ? "loaded" : ""}`}
         src={url}
         alt={`Foto ${index}`}
         onLoad={() => setLoaded(true)}
+        onError={() => setLoaded(true)} // 🔥 IMPORTANTE
         style={{
           width: "100%",
           height: "100%",
           objectFit: "cover",
-          opacity: loaded ? 1 : 0,
-          transition: "opacity 0.8s ease",
+          opacity: loaded ? 1 : 1, // 🔥 força aparecer
         }}
       />
 
+      {/* loading (opcional) */}
+      {!loaded && (
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            background: "#ddd",
+          }}
+        />
+      )}
+
       <button
-        className="download-btn"
         onClick={(e) => {
-          e.stopPropagation(); // evita abrir lightbox
+          e.stopPropagation();
           downloadImagem();
         }}
         style={{
