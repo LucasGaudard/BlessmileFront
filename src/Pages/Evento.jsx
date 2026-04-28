@@ -33,14 +33,7 @@ function Evento() {
       });
   }, [codigo]);
 
-  const baixarTodas = () => {
-  const link = document.createElement("a");
-  link.href = `${API_URL}/download/${codigo}`;
-  link.target = "_self"; // 🔥 importante
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
-};
+  
 
   if (loading) return <p className="loading">Carregando...</p>;
 
