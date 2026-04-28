@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import PhotoCard from "../Components/Photocard";
 import Lightbox from "../Components/Lightbox";
 import "./Evento.css";
 
@@ -66,8 +65,28 @@ function Evento() {
       <div className="gallery">
         {fotos.length > 0 ? (
           fotos.map((url, index) => (
-            <div key={index} onClick={() => setLightboxIndex(index)}>
-              <PhotoCard url={url} index={index} />
+            <div
+              key={index}
+              onClick={() => setLightboxIndex(index)}
+              style={{
+                width: "100%",
+                height: "250px",
+                overflow: "hidden",
+                borderRadius: "12px",
+                background: "#222",
+                cursor: "pointer",
+              }}
+            >
+              <img
+                src={url}
+                alt={`Foto ${index}`}
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "cover",
+                  display: "block",
+                }}
+              />
             </div>
           ))
         ) : (
